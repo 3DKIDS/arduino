@@ -1,0 +1,28 @@
+//full down method
+
+
+int buttonPin = 2;
+const int ledPin = 13;
+
+int buttonState = 0;
+
+void setup() {
+  
+  // put your setup code here, to run once:
+  pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT);
+  
+}//end setup
+
+void loop() {
+  // put your main code here, to run repeatedly
+  
+  buttonState = digitalRead(buttonPin); //버튼 핀 2의 값을 디지털로 읽어서 상태저장
+
+  if(buttonState == HIGH) {
+      digitalWrite(ledPin, HIGH);
+  }else{
+      digitalWrite(ledPin, LOW);
+  }
+
+}//end loop
