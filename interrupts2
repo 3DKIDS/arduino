@@ -1,0 +1,22 @@
+
+const int ledPin = 13;
+volatile int state = LOW;
+
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(ledPin, OUTPUT);
+  attachInterrupt(0, blink, LOW); //2번핀이  LOW에서 HIGH로 바뀌는 순간 작동
+  
+}//end setup
+
+void loop() { 
+  noInterrupts();
+   digitalWrite(ledPin, state);
+  interrupts();
+  delay(100);
+}//end loop
+
+void blink() {
+  state = !state;
+}
