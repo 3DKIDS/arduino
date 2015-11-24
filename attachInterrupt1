@@ -13,3 +13,7 @@ void setup() {
 void loop() { 
    digitalWrite(ledPin, state);
 }//end loop
+
+void blink() {
+  state = !state;
+}
