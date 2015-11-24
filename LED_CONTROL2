@@ -1,0 +1,75 @@
+const int LedPin = 13;
+const int LedPin2 = 12;
+
+int ButtonState = LOW;
+int BS_KEY = 0;
+int BS_KEY2 = 0; 
+
+volatile unsigned long LastPushTime;
+volatile unsigned long PushTime;
+
+
+volatile unsigned long LastPushTime2;
+volatile unsigned long PushTime2;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(LedPin, OUTPUT);
+  attachInterrupt(0,PushButton, RISING); //pin 2
+  attachInterrupt(1,PushButton2, RISING); // pin 3
+  //Serial.begin(9600);
+}//end setup
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+
+  switch (BS_KEY) {
+    case 1:
+            digitalWrite(LedPin, HIGH);  //불을 켠다.
+           break;
+    case 2:
+            digitalWrite(LedPin, HIGH);   // turn the LED on (HIGH is the voltage level)
+            delay(100);              // wait for a second
+            digitalWrite(LedPin, LOW);    // turn the LED off by making the voltage LOW
+            delay(100);              // wait for a second
+      break;
+          
+    default: 
+            digitalWrite(LedPin, LOW);  //turn off
+    break;
+  }
+
+ if(BS_KEY2 == 1) {
+           digitalWrite(LedPin2, HIGH);  //불을 켠다.
+           
+ }else{
+           digitalWrite(LedPin2, LOW);  //turn off
+ }
+
+}//end loop
+
+void PushButton(){
+  PushTime = millis() - LastPushTime;
+
+  if(PushTime > 50) {
+      BS_KEY = BS_KEY + 1;
+      if(BS_KEY == 4){ BS_KEY = 1;}
+     // Serial.println(BS_KEY);
+    
+  }
+  LastPushTime = millis();
+}
+
+
+void PushButton2(){
+  PushTime2 = millis() - LastPushTime2;
+
+  if(PushTime > 50) {
+      BS_KEY2 = BS_KEY2 + 1;
+      if(BS_KEY2 == 3){ BS_KEY2 = 1;}
+     // Serial.println(BS_KEY2);
+    
+  }
+  LastPushTime2 = millis();
+}
