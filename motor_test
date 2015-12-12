@@ -1,0 +1,101 @@
+
+#define VMAX 255
+#define VMIN 0
+#define VINI 4
+#define VDIF 2
+
+int va = VMIN;
+int vb = VMIN;
+int vc = VMIN;
+int vd = VMIN;
+
+
+int vaPin = 3;
+int vbPin = 10;
+int vcPin = 9;
+int vdPin = 11;
+
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(57600);
+  initMotorV();
+  showMenu();
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  controlMotorV();
+}
+
+
+void showMenu(){
+    Serial.println(" ===<<Motor speed >>== " );
+    Serial.println("0. all stop " );
+    Serial.println(" 1 sepeed up" );
+    Serial.println(" 2 sepeed up" );
+    Serial.println(" 3 sepeed up" );
+    Serial.println(" 4 sepeed up" );
+    Serial.println("5 sepeed down" );
+    Serial.println("6 sepeed down" );
+    Serial.println("7 sepeed down" );
+    Serial.println("8 sepeed down" );
+    Serial.println("m. show menu" );
+}//end showMenu
+
+
+void controlMotorV(){
+   if(isVelocityChanged()){
+      updateVelocity();
+   }
+}
+
+bool isVelocityChanged(){
+  char userCmd;
+  bool VelocityChanged  = false;
+
+  while(Serial.available()){
+    userCmd = Serial.read();
+    switch(userCmd) {
+      case '1' : va += VDIF; if(va>VMAX) va=VMAX; VelocityChanged = true; break;
+      case '2' : vb += VDIF; if(vb>VMAX) vb=VMAX; VelocityChanged = true; break;
+      case '3' : vc += VDIF; if(vc>VMAX) vc=VMAX; VelocityChanged = true; break;
+      case '4' : vd += VDIF; if(vd>VMAX) vd=VMAX; VelocityChanged = true; break;
+      
+      case '5' : va -= VDIF; if(va<VMIN) va=VMAX; VelocityChanged = true; break;
+      case '6' : vb -= VDIF; if(vb<VMIN) vb=VMIN; VelocityChanged = true; break;
+      case '7' : vc -= VDIF; if(vc<VMIN) vc=VMIN; VelocityChanged = true; break;
+      case '8' : vd -= VDIF; if(vd<VMIN) vd=VMIN; VelocityChanged = true; break;
+      
+      case '0' : va =vb=vc=vd = VMIN ; VelocityChanged = true; break;
+      case 'm' : showMenu(); break;
+      default : break;
+    }//end switch
+  }// end while
+
+return VelocityChanged;
+  
+}//end bool
+
+
+void updateVelocity(){
+  analogWrite(vaPin, va);
+  analogWrite(vbPin, vb);
+  analogWrite(vcPin, vc);
+  analogWrite(vdPin, vd);
+  
+    Serial.print("va, vb, vc, vd = ");
+    Serial.print(va); Serial.print(","); 
+    Serial.print(vb); Serial.print(","); 
+    Serial.print(vc); Serial.print(","); 
+    Serial.print(vd); Serial.print(","); 
+}
+
+void initMotorV(){
+  analogWrite(vaPin,VINI); delay(1000);
+  analogWrite(vbPin,VINI); delay(1000);
+  analogWrite(vcPin,VINI); delay(1000);
+  analogWrite(vdPin,VINI); delay(1000);
+}
