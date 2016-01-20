@@ -1,0 +1,58 @@
+
+void setup() {
+  // put your setup code here, to run once:
+  blink_setup();
+  serial_setup();
+  
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+   blink_loop();
+   serial_loop();
+   
+}
+
+//blink
+
+const int ledPin = 13;
+
+int   blink_ledState = LOW;  //LED의 상태 저장 변수 현재는 꺼져라!! 상태
+long  blink_previousMillis = 0;// LED의 상태가 바뀐 최근 시간 조정 (스케치 시작될 때는 0밀리초로 시작)
+long  blink_interval = 1000; //LED 설정 간격
+
+unsigned long g_currentMillis; //다른탭에서 값이 전달되기 위해서는 글로벌 변수 지역에
+
+void blink_setup() {
+      pinMode(ledPin, OUTPUT);  //13번핀에 LED전구 연결하고 빛이 반짝이는 결과를 보는 OUTPUT
+  }//end setup
+  
+void blink_loop()  {
+  unsigned long currentMillis = millis(); //millis() delay보다 정확한 값으로 제어하기위해 이용한다. 현재시간을  얻어서 좌변 변수에 넣음
+                g_currentMillis = currentMillis; //gloabl 변수
+                
+                if(currentMillis - blink_previousMillis >= blink_interval){  
+       blink_previousMillis = currentMillis;
+
+       if(blink_ledState == LOW)
+            blink_ledState= HIGH;
+        else
+            blink_ledState = LOW;
+
+   digitalWrite(ledPin,blink_ledState);
+   
+  }//end if
+
+}//end loop
+
+//Serial
+
+void serial_setup() {
+  Serial.begin(9600); //시리얼통신 초기화
+  
+}
+
+void serial_loop(){
+  Serial.println(g_currentMillis);//Global변수로 값전달 ^^
+}
+
