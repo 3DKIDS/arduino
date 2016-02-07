@@ -1,0 +1,31 @@
+/* switch for count */
+
+int inPin = 8;         // the number of the input pin
+
+int reading;           // the current reading from the input pin
+
+long time = 0;         // the last time the output pin was toggled
+long debounce = 200;   // the debounce time, increase if the output flickers
+int  cnt = 0;
+
+void setup()
+{
+  pinMode(inPin, INPUT);
+ Serial.begin(9600); //시리얼통신 초기화
+}
+
+void loop()
+{
+  reading = digitalRead(inPin);
+
+
+  if (reading == HIGH && millis() - time > debounce) {
+       cnt = cnt + 1;
+
+    time = millis();    
+  }
+
+   Serial.println(cnt);//Global변수로 값전달 ^^
+
+   
+}
