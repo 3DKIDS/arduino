@@ -11,7 +11,8 @@
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 byte ip[] = { 192,168,0,16};
-byte server[] = { 64, 233, 187, 99 }; // Google
+//byte server[] = { 64, 233, 187, 99 }; // Google
+char server[] = "api.openweathermap.org"; //접속할 서버
 
 EthernetClient client;
 
@@ -26,7 +27,9 @@ void setup()
 
   if (client.connect(server, 80)) {
     Serial.println("connected");
-    client.println("GET /search?q=arduino HTTP/1.0");
+    //client.println("GET /search?q=arduino HTTP/1.0");
+    client.println("GET /data/2.5/weather?id=1835848&appid=당신의키&mode=xml  HTTP/1.0\n\n");
+    client.println("HOST: api.openweathermap.org");
     client.println();
   } else {
     Serial.println("connection failed");
