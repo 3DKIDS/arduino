@@ -1,0 +1,196 @@
+/*
+  Web weather Server
+
+ A simple web server that shows the value of the analog input pins.
+ using an Arduino Wiznet Ethernet shield.
+
+ Circuit:
+ * Ethernet shield attached to pins 10, 11, 12, 13
+ * Analog inputs attached to pins A0 through A5 (optional)
+
+ created 18 Dec 2009
+ by David A. Mellis
+ modified 9 Apr 2012
+ by Tom Igoe
+ modified 02 Sept 2015
+ by Arturo Guadalupi
+
+wiznet weather sample
+modified 09, Feb 2016
+by SEO JONG WON LOVETANG
+ */
+#include <Dhcp.h>
+#include <Dns.h>
+#include <Ethernet.h>
+#include <EthernetClient.h>
+#include <EthernetServer.h>
+#include <EthernetUdp.h>
+#include <Twitter.h>
+#include <util.h>
+#include <SPI.h>    //이더넷 쉴드와 우노보드 SPI 통신한다는 이야기
+
+String Stringbuffer = "";
+String temp ="";
+String hum = "";
+String timeString = "";
+
+boolean readTemp = false;
+boolean readHum = false;
+boolean readTime = false;
+
+
+// Enter a MAC address and IP address for your controller below.
+// The IP address will be dependent on your local network:
+byte mac[] = {
+ // 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED  
+ //맥주소에 따라 결과가 나오다 안나오다 함.
+ 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
+};
+
+char server[] = "api.openweathermap.org"; //접속할 서버
+
+/* DHCP */
+IPAddress ip(0, 0, 0, 0);
+IPAddress gateway(0, 0, 0, 0);
+IPAddress subnet(0, 0, 0,0);
+IPAddress dnServer(0, 0, 0, 0);
+
+EthernetClient client; //클라이언트 선언
+
+void setup() {
+
+    //각 변수에 정해진 공간 할당
+    Stringbuffer.reserve(100);
+    temp.reserve(10);
+    hum.reserve(10);
+    timeString.reserve(10);
+
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
+
+  // start the Ethernet connection and the server:
+  Ethernet.begin(mac);
+  delay(1000);
+
+  /*client network info show */
+  Serial.print("Clint IP ; ");
+  Serial.println(Ethernet.localIP());
+  Serial.print("Client subnetMask : ");
+  Serial.println(Ethernet.subnetMask());
+  Serial.print("Client gatewayIP : ");
+  Serial.println(Ethernet.gatewayIP());
+  Serial.println("connecting...");
+
+  httpRequest(); //날씨정보요청
+  
+}
+
+
+void loop() {
+  
+    while (client.connected()) {  //서버로부터 데이타수신 된경우
+      char c = client.read(); // 서버에서 전송된 데이타를 c에 한글자씩 저장
+      Stringbuffer += c;
+      /* 온도 값 일기 */
+      if(Stringbuffer.endsWith("<temperature value=")){
+        //문자열이 <temperature value= 로 끝났다면 온도데이타 수신준비
+        readTemp = true; 
+        temp = "";
+      }
+
+      if(readTemp) {
+        if(c != 'm') {  //전송된 문자 m 이 올때까지 온도값으로 인식
+          temp += c;
+        }else{
+          readTemp = false;
+          Serial.print("- Temperature: ");
+          Serial.print(getInt(temp) - 273 );
+          Serial.println(char(176)); //온도 마크
+        
+        }
+        
+      }
+        /* 온도 값 end  */
+         /* 습도 값 읽기 */
+      if(Stringbuffer.endsWith("<humidity value=")){
+        //문자열이 <humidity  value= 로 끝났다면 온도데이타 수신준비
+        readHum = true; 
+        hum = "";
+      }
+
+      if(readHum) {
+        if(c != 'u') {  //전송된 문자 u 이 올때까지 습도값으로 인식
+          hum += c;
+        }else{
+          readHum = false;
+          Serial.print("- Humidity: ");
+          Serial.print(getInt(hum));
+          Serial.println((char)37); 
+        }
+      }
+        /* 습도 값 end  */
+
+        /* 시간 값 읽기  */
+     if(Stringbuffer.endsWith("<lastupdate value=")){
+        //문자열이 <lastupdate  value= 로 끝났다면 시간 수신준비
+        readTime = true; 
+        timeString = "";
+      }
+
+      if(readTime) {
+        if(c != '/') {  
+          timeString += c;
+        }else{
+          readTime = false;
+          Serial.print("- Last update: ");
+          Serial.print(timeString.substring(2,timeString.length()-1));
+        }
+      }
+        /* 시간 값 end  */
+
+        if(!client.connected()){ //연결 종료
+          Serial.println();
+          Serial.println("disconnect..");
+          client.stop();
+          //do nothing forevermore
+          while(true);
+        }
+        
+    }
+
+
+}//end loop
+
+        int getInt(String input){
+                int i =2;
+                int temp;
+          
+                while(input[i] != '"'){ //포인털 " 건더 뛰기
+                  i++;
+                }
+                input = input.substring(2,i);
+                char carray[20]; 
+                input.toCharArray(carray, sizeof(carray));
+                temp = atoi(carray);
+                return temp;
+              }//getInt
+
+  void httpRequest(void) {
+      if(client.connect(server,80)){//서버로 접속시도
+        Serial.println("Connected");
+         //날씨정보요청
+         client.println("GET /data/2.5/weather?id=1835848&appid=당신의key&mode=xml  HTTP/1.0\n\n");
+         client.println("HOST: api.openweathermap.org");
+         client.println("Connection: close");
+         client.println();
+         Serial.println("-------------------------------------------------------------");
+         Serial.println("                  Seoul KOREA  Weather Info                  ");
+         Serial.println("-------------------------------------------------------------");
+      }else{
+        Serial.println("connection fail");
+      }
+    }
