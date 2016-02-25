@@ -146,7 +146,7 @@ void loop() {
       if(client.connect(server,80)){//서버로 접속시도
         Serial.println("Connected");
          //날씨정보요청
-         client.println("GET /data/2.5/weather?id=1835848&appid=bffd8e5bf70e10a6120630eb9b1dad8b&mode=xml  HTTP/1.0\n\n");
+         client.println("GET /data/2.5/weather?id=1835848&appid=당신의 키&mode=xml  HTTP/1.0\n\n");
          client.println("HOST: api.openweathermap.org");
          client.println("Connection: close");
          client.println();
