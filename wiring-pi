@@ -1,0 +1,34 @@
+var wpi = require('wiring-pi');
+
+wpi.setup('wpi');
+
+var LED_pin = 0;
+var PIR_pin = 7;
+
+wpi.pinMode(LED_pin, wpi.OUTPUT);
+wpi.pinMode(PIR_pin, wpi.INPUT);
+
+
+var value = 1;
+var PIR_val = 0 ;
+
+
+setInterval(function() {
+
+  PIR_val =  wpi.digitalRead(PIR_pin);
+
+  if(PIR_val ==1){
+        wpi.digitalWrite(LED_pin, value);
+        value = +!value;
+         PIR_val = 0 ;
+        console.log('motion detected!!!');
+
+  }else{
+    wpi.digitalWrite(LED_pin, 0);
+        value = +!value;
+         PIR_val = 0 ;
+                 console.log('motion off');
+  }
+
+
+}, 500);
