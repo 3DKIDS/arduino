@@ -1,0 +1,11 @@
+var events = require('events');
+var EventEmitter = events.EventEmitter; //생성자 호출
+var emitter = new EventEmitter();  //객체를 저장
+
+
+
+emitter.emit('start');
+
+emitter.emit('counter',1);
+
+emitter.emit('counter',2);
