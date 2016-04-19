@@ -1,0 +1,30 @@
+var MongoClient = require('mongodb').MongoClient;
+
+MongoClient.connect(('mongodb://localhost:27017/moduiot'),function(err,db){
+
+	if(err) throw err;
+
+	var query = {'sensor' : 'motor1' };
+
+	db.collection('iot4pet').findOne(query, function(err,doc){
+     
+     if(err) throw err;
+
+	 if(!doc){
+       console.log('No data!' + query.sensor);
+	   return db.close();
+	 }
+
+	 query['_id']  = doc['_id'];
+	 doc['Time'] = new Date();
+	 doc['value'] = 1;
+
+	 db.collection('iot4pet').update(query,doc,function(err,updated){
+		if(err) throw err;
+		console.log("Success" + updated);
+
+        return db.close();
+	 
+	 });
+   });
+});
