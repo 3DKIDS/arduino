@@ -1,0 +1,16 @@
+/*
+   Modu IoT Node.js Study  
+   by SJW  lovetang72@gmail.com
+   filename : Http_test.js
+*/
+
+var http = require('http');
+
+http.createServer(
+	function(req,res){
+		res.writeHead(200,{'Content-Type':'text/plain'});
+		res.end('Hello Modu IoT member on Raspberry Pi2 ! \n');
+	}
+).listen(80,'127.0.0.1');
+
+console.log('Server runing !!!!');
