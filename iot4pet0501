@@ -24,7 +24,7 @@ var Gpio = require('onoff').Gpio;
 
 var Led_pin = 0; //LeD pin 
 var M_pin = 1; //motor pin
-var M_speed=200; //motor speed
+var M_speed=500; //motor speed
 var Dir_pin = 28 //motor  direction
 var R_pir_pin = 2; //Right PIR sensor
 var R_pir_val = 0 ;
@@ -60,6 +60,7 @@ var Btn_val  = 0 ;
 
         console.log('Right PIR  value : ' + R_pir_val );
         console.log('Left PIR  value : ' + L_pir_val );
+
        // console.log('front switch  value : ' + F_sw_val );
        // console.log('baxk  switch  value : ' + B_sw_val );
         console.log('Button value: ' + Btn_val );
@@ -78,7 +79,7 @@ util.inherits(MotorControl,EventEmitter);//상속설정
 var MotorRunListener = function(M_pin){
         setTimeout(function() {
                 wpi.digitalWrite(Dir_pin, 1);
-			    wpi.pwmWrite(M_pin, 200);
+			    wpi.pwmWrite(M_pin, M_speed);
 
     },100000);
 
