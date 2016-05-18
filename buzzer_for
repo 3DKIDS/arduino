@@ -1,0 +1,14 @@
+int buzzer = 8;
+
+void setup() {
+  for(int cnt = 0; cnt < 8 ; cnt++){
+    tone(buzzer, 355, 1000);
+    delay(1000);
+    noTone(buzzer);
+  }
+
+}
+
+void loop() {
+
+}
