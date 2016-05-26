@@ -1,0 +1,21 @@
+int cds = A0;
+int ledPin = 11;
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(ledPin, OUTPUT);
+
+}
+
+void loop(){
+    Serial.println(analogRead(cds));
+    //analogWrite(11, analogRead(cds/4));
+      int cdsValue = analogRead(cds);
+    if(cdsValue < 950){
+      digitalWrite(ledPin,HIGH);
+    }else{
+       digitalWrite(ledPin,LOW);
+    }
+    delay(10);
+}
