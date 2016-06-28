@@ -15,3 +15,6 @@ $ sudo apt-get install mosquitto mosquitto-clients
 
 Mosquitto Broker 실행
 $ sudo /etc/init.d/mosquitto start
+
+
+$ mosquitto_pub -d -h 127.0.0.1 -t moduFARM/sensor/temp -m "{temp:88}"
