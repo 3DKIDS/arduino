@@ -1,0 +1,17 @@
+$mkdir MQTT_test
+$cd MQTT_test
+$wget http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key
+$sudo apt-key add mosquitto-repo.gpg.key
+
+Mosquitto Repository Package 등록
+$ cd /etc/apt/sources.list.d/
+$ sudo wget http://repo.mosquitto.org/debian/mosquitto-jessie.list
+
+Mosquitto Broker 설치
+$ sudo apt-get update
+$ sudo apt-cache search mosquitto
+$ sudo apt-get install mosquitto mosquitto-clients
+
+
+Mosquitto Broker 실행
+$ sudo /etc/init.d/mosquitto start
