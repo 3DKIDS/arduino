@@ -1,0 +1,197 @@
+/*
+ModuIoT Project
+https://github.com/eugeneware/wiring-pi/blob/master/DOCUMENTATION.md
+IoT4Pets
+for CATS
+*/
+
+var express = require('express');
+var os = require('os');
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
+var app = express();
+
+
+// set up handlebars view engine
+var handlebars = require('express-handlebars').create({ defaultLayout:'main' });
+app.engine('handlebars', handlebars.engine);
+app.set('view engine', 'handlebars');
+
+
+var wpi = require('wiring-pi');
+        wpi.setup('wpi');
+var Gpio = require('onoff').Gpio;
+
+var Led_pin = 0; //LeD pin
+var M_pin = 1; //motor pin
+var M_speed=1000; //motor speed
+var Dir_pin = 28 //motor  direction
+var R_pir_pin = 2; //Right PIR sensor
+var R_pir_val = 0 ;
+var L_pir_pin = 3;  //LEFT PIR sensor
+var L_pir_val  = 0 ;
+var F_sw_pin = 14; // 앞 스위치  GPIO14 (Ra 3)
+var F_sw_val  = 0 ;
+var B_sw_pin = 15; //뒤 스위치  GPIO15 (Ra 3)
+var B_sw_val  = 0 ;
+var Btn =  2;// 즉시실행위한 버튼   GPIO2 (Ra 3)
+var Btn_val  = 0 ;
+
+        /*모드설정*/
+        wpi.pinMode( R_pir_pin, wpi.INPUT);  //오른쪽 모션센서
+        wpi.pinMode( L_pir_pin, wpi.INPUT);  //왼쪽 모션센서
+        wpi.pinMode(Led_pin, wpi.OUTPUT);    //
+                wpi.pinMode(M_pin, wpi.PWM_OUTPUT);
+                  button  = new Gpio(F_sw_pin, 'in', 'both');  //앞 스위치
+          button2 = new Gpio(B_sw_pin, 'in', 'both');  //뒤 스위치
+          button3 = new Gpio(Btn, 'in', 'both');  //즉시실행버튼
+                wpi.pinMode(Dir_pin , wpi.OUTPUT);  //모터 회전 방향
+
+  /*값 읽기*/
+        R_pir_val   = wpi.digitalRead (R_pir_pin);
+        L_pir_val   = wpi.digitalRead (L_pir_pin);
+                Dir_val      =  wpi.digitalRead (Dir_pin);
+
+
+// This is object that generate(emit) events
+var MotorControl = function(){
+
+     EventEmitter.call(this);// EventEmitter 생성자 호출
+
+}// funcMotor_control
+
+util.inherits(MotorControl,EventEmitter);//상속설정
+
+//this is listener
+var MotorRunListener = function(M_pin){
+        setTimeout(function() {
+                wpi.digitalWrite(Dir_pin, 0); //정방향
+                            wpi.pwmWrite(M_pin, M_speed);
+
+    },10000); //10초
+
+    console.log('Motor Start time  : ' +  os.uptime() );
+}
+
+var MotorControl = new MotorControl();
+
+MotorControl.on('MotorRun',MotorRunListener);
+
+
+
+//반응 이벤트 캐치...
+wpi.wiringPiISR( R_pir_pin, wpi.INT_EDGE_RISING, function(  ) {
+    MotorControl.emit('MotorRun',M_pin);
+        console.log('Pet motion detect 10miute later Clean!!!' );
+        console.log('Pin No : ' + M_pin );
+    //  wiringPiISRCancel( R_pir_pin);
+});
+
+
+
+
+
+//앞스위치
+button.watch(function (err, value) {
+  if (err) exit();
+ // button.writeSync(value);
+  console.log('btn1 : Stop and Reverse Run !!!' );
+  if(value == 1){
+                  wpi.pwmWrite(M_pin, 0);
+                  setTimeout(function() {
+                wpi.digitalWrite(Dir_pin, 1); //역방향
+                wpi.pwmWrite(M_pin, M_speed);
+          },2000);
+  }
+});
+
+//뒤 스위치
+button2.watch(function (err, value) {
+ if (err) exit();
+  //button2.writeSync(value);
+         console.log('btn2 :  Motor stop !!!' );
+   if(value == 1){
+                  wpi.pwmWrite(M_pin, 0);   //멈춤
+   }
+
+
+});
+
+//즉시실행버튼
+button3.watch(function (err, value) {
+  if (err) exit();
+ // button3.writeSync(value);
+         console.log('btn3 : Now Run ! ' );
+        if(value == 1){
+                         wpi.digitalWrite(Dir_pin, 0); //정방향
+                     wpi.pwmWrite(M_pin, M_speed);
+           }
+
+});
+
+
+// 마이크로스위치 처리
+function exit() {
+  button.unexport();
+  button2.unexport();
+  button3.unexport();
+  process.exit();
+}
+//process.on('SIGINT', exit);
+//마이크로스위치 종료
+
+
+//express web page control
+app.set('port', process.env.PORT || 3000);
+
+app.use(express.static(__dirname + '/public'));
+
+
+app.get('/on', function(req, res) {
+       // res.type('text/html');
+       // res.send('청소시작');
+       res.render('about');
+        /*****/
+                wpi.pwmWrite(M_pin, M_speed);
+                 wpi.digitalWrite(Dir_pin, 0); //정방향
+                 console.log('web Motor Run !!!' );
+
+
+        //clearTimeout(sT_obj);
+        /***MongoDB**/
+
+                 /***MongoDB**/
+
+});
+app.get('/off', function(req,res){
+        //res.type('text/html');
+        //res.send('청소끝');
+        res.render('about');
+                /*****/
+                     wpi.pwmWrite(M_pin, 0);
+                                   console.log('web Motor stop !!!' );
+                /*****/
+                                /***MongoDB**/
+;
+                 /***MongoDB**/
+});
+
+// 404 catch-all handler (middleware)
+app.use(function(req, res, next){
+        //res.type('text/plain');
+        res.status(404);
+        //res.send('404 - not Found');
+        res.render('404');
+});
+
+// 500 error handler (middleware)
+app.use(function(err, req, res, next){
+        console.error(err.stack);
+        res.status(500);
+        res.render('500');
+});
+
+app.listen(app.get('port'), function(){
+  console.log( 'Express started on http://localhost:' +
+    app.get('port') + '; press Ctrl-C to terminate.' );
+});
