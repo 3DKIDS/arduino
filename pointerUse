@@ -1,0 +1,23 @@
+void setup() {
+  // put your setup code here, to run once:
+int number = 1;
+int *pointer;  //주소만 저장될 수 있다.
+pointer = &number;  //1이 들어있는 변수 nubmer의 주소를 알려주려면 &number
+//포인터 변수 pointer에 변수 number(&number는 number라는 변수의 주소를 의미(reference))의 주소 번지수인 100이 저장된다. 
+
+ 
+//위의 예에서 int number = 1;은 메모리상의 특정 주소지(예를 들어 100번지)에 정수값 1을 저장한다. 
+//그리고 int *pointer;를 선언하면 포인터형으로 변수 pointer를 준비하는데, 이 변수에는 주소만 저장될 수 있다.
+//그리고 pointer = &number;는 포인터 변수 pointer에 변수 number의 주소 번지수인 100이 저장된다. 
+//즉, &number는 number라는 변수의 주소를 의미(reference)하게 되고, 
+//pointer가 지정하는 곳의 값을 나타내는 표현은 *pointer(derefence)가 되며, 따라서 *pointer = number = 1이 된다.
+
+Serial.begin(9600);
+Serial.print("value:");
+Serial.println(*pointer);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
