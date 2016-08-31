@@ -1,0 +1,49 @@
+// Copyright Benoit Blanchon 2014-2016
+// MIT License
+//
+// Arduino JSON library
+// https://github.com/bblanchon/ArduinoJson
+// If you like this project, please add a star!
+//modified by 3dkids.kr
+
+#include <ArduinoJson.h>
+
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  JsonObject& root2 = jsonBuffer.createObject();
+  JsonArray& FootFitArray = jsonBuffer.createArray();
+  
+void setup() {
+  Serial.begin(9600);
+  while (!Serial) {
+    // wait serial port initialization
+  }
+
+
+}
+
+void loop() {
+String read_data;
+  
+  if (Serial.available() > 0) {
+          read_data = Serial.readString();
+           Serial.println(read_data);
+           /* 데이타전송하라는요청 "DS" */
+          if(read_data=="DS"){  
+              root["fday"] = 20160831;
+              root["fcnt"] = 50000;
+              root["ftime"] = 19721221;
+              FootFitArray.add(root);
+
+              root2["fday"] = 20160901;
+              root2["fcnt"] = 8888;
+              root2["ftime"] = 77777;
+              FootFitArray.add(root2);
+              
+              FootFitArray.printTo(Serial);
+           
+          }
+          
+  }
+   
+}//end loop
