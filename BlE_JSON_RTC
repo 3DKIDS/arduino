@@ -1,0 +1,151 @@
+// Basic bluetooth test sketch. HC-0x_FC-114_01_9600
+//  Uses hardware serial to talk to the host computer and software serial for communication with the bluetooth module
+//
+//  Pins
+//  BT VCC to Arduino 5V out. 
+//  BT GND to GND
+//  Arduino D3 to BT RX through a voltage divider
+//  Arduino D2 BT TX (no need voltage divider)
+//
+//  When a command is entered in the serial monitor on the computer 
+//  the Arduino will relay it to the bluetooth module and display the result.
+//
+// The HC-0x FC-114 modules require CR and NL
+// Modified by makerseo72@gmail.com
+// Copyright Benoit Blanchon 2014-2016
+// MIT License
+//
+// Arduino JSON library
+// https://github.com/bblanchon/ArduinoJson
+// If you like this project, please add a star!
+//modified by 3dkids.kr
+
+#include <Time.h>  
+#include <Wire.h>  
+#include "RTClib.h"
+#include <ArduinoJson.h>
+#include <SoftwareSerial.h>
+SoftwareSerial BTSerial(2, 3); // RX | TX
+int ledPin= 13;
+int LFoot= 7;
+int RFoot = 8;
+int LFState = 0;         
+int RFState = 0;     
+
+RTC_DS1307 rtc;
+
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  //JsonObject& root2 = jsonBuffer.createObject();
+  JsonArray& FootFitArray = jsonBuffer.createArray();
+
+void setup() 
+{
+      Serial.begin(9600);
+      Serial.println("Foot-Fit V1.0 BLE is ready");
+      Serial.println("Make sure Both NL & CR are set");
+      Serial.println("");
+      delay(100);
+      BTSerial.begin(9600);  
+      Serial.println("BTserial started at 9600");
+      Serial.println("");
+
+      pinMode(ledPin,OUTPUT);
+      pinMode(LFoot,INPUT);
+      pinMode(RFoot,INPUT);
+      
+      /*날짜시간*/
+#ifdef AVR
+  Wire.begin();
+#else
+  Wire1.begin(); // Shield I2C pins connect to alt I2C bus on Arduino Due
+#endif
+  rtc.begin();
+
+  if (! rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+  }
+      /*날짜시간*/
+           
+}
+
+
+void loop()
+{
+  /*오늘의날짜*/
+    DateTime now = rtc.now();
+      String fyear   = printDigits(now.year());
+      String fmonth = printDigits(now.month());
+      String fday  = printDigits(now.day());
+      String footday    = fyear + fmonth +fday;
+  /*오늘의날짜*/   
+  
+   char cmd;
+    // Read from the Bluetooth module and send to the Arduino Serial Monitor
+    if (BTSerial.available())
+    {
+        cmd = BTSerial.read();
+       // Serial.write(c);
+       Serial.print("Command= ");
+       Serial.println(cmd);
+    
+       switch (cmd) {
+            case '1':
+                //do something when var equals 1
+                   Serial.print("Data Sendig : ");
+                   digitalWrite(ledPin,HIGH);
+                  // BTSerial.write("{\"fday\":\"20180830\",\"fcnt\":\"50000\",\"ftime\":\"190000000\"}");
+                        root["fday"] = footday;
+                        root["fcnt"] = 50000;
+                        FootFitArray.add(root);
+                     /*
+                        root["fday"] = 2016091;
+                        root["fcnt"] = 50000;
+                        root["ftime"] = 19721221;
+                        root["fcal"] = 300;
+                        FootFitArray.add(root);
+          
+                        FootFitArray.removeAt(2);
+                        */
+                        FootFitArray.printTo(BTSerial);
+                        FootFitArray.printTo(Serial);
+                   break;
+              case '2':
+                //do something when var equals 2
+                 Serial.print("Data Clear");
+                   digitalWrite(ledPin,LOW);
+                   BTSerial.write("Data Clear");
+                break;
+    default: 
+      // if nothing else matches, do the default
+      // default is optional
+       LFState = digitalRead(LFoot);
+       RFState = digitalRead(RFoot);
+
+       if (LFState  == HIGH) {
+          // turn LED on:
+          digitalWrite(ledPin, HIGH);
+        } else {
+          // turn LED off:
+          digitalWrite(ledPin, LOW);
+        }
+      
+    break;
+    }//switch end
+       
+       
+    }//BTSerial.available
+}//end loop
+
+String printDigits(int digits){  // 시간이나 날짜가 한자리 일경우 앞에 0을 붙이는 함수
+  // utility function for digital clock display: prints preceding colon and leading 0
+  String temp = String(digits);
+  if(digits < 10)
+    temp = "0" + temp;
+  return temp;
+}
