@@ -1,0 +1,102 @@
+/***
+    eeprom_put example.
+
+    This shows how to use the EEPROM.put() method.
+    Also, this sketch will pre-set the EEPROM data for the
+    example sketch eeprom_get.
+
+    Note, unlike the single byte version EEPROM.write(),
+    the put method will use update semantics. As in a byte
+    will only be written to the EEPROM if the data is actually
+    different.
+
+    Written by Christopher Andrews 2015
+    Released under MIT licence.
+***/
+#include <Time.h>  
+#include <Wire.h>  
+#include "RTClib.h"
+
+#include <EEPROM.h>
+
+String fyear;
+String fmonth;
+String fday;
+String fday2;
+String footday;
+String footday2;
+RTC_DS1307 rtc;
+
+struct MyObject {
+  int sno;
+  String day;
+  int dcnt[24];
+};
+
+void setup() {
+
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+/*날짜시간*/
+#ifdef AVR
+  Wire.begin();
+#else
+  Wire1.begin(); // Shield I2C pins connect to alt I2C bus on Arduino Due
+#endif
+  rtc.begin();
+
+  if (! rtc.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+  }
+
+      DateTime now = rtc.now();
+      fyear   = printDigits(now.year());
+      fmonth = printDigits(now.month());
+      fday  = printDigits(now.day());
+      fday2  = printDigits(now.day()-1);
+      footday    = fyear + fmonth +fday;
+      footday2    = fyear + fmonth +fday2;
+ /*날짜시간*/
+ 
+ // float f = 1.0f;  //Variable to store in EEPROM.
+  float f = 123.456f;  //Variable to store in EEPROM.
+  int eeAddress = 0;   //Location we want the data to be put.
+
+
+  //One simple call, with the address first and the object second.
+  EEPROM.put(eeAddress, f);
+
+  Serial.println("Written float data type!");
+
+  /** Put is designed for use with custom structures also. **/
+
+  //Data to store.
+  MyObject customVar = {
+    1,
+    fyear,
+   {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}
+  };
+
+  eeAddress += sizeof(float); //Move address to the next byte after float 'f'.
+  EEPROM.put(eeAddress, customVar);
+  Serial.print("Written custom data type! \n\nView the example sketch eeprom_get to see how you can retrieve the values!");
+}
+
+void loop() {
+  /* Empty loop */
+}
+
+String printDigits(int digits){  // 시간이나 날짜가 한자리 일경우 앞에 0을 붙이는 함수
+  // utility function for digital clock display: prints preceding colon and leading 0
+  String temp = String(digits);
+  if(digits < 10)
+    temp = "0" + temp;
+  return temp;
+}
