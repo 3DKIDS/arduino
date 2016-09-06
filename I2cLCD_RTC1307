@@ -1,3 +1,9 @@
+/*
+Modified by ModuIot 
+modulabs.co.kr
+3dkids.kr
+makerseo72@gmail.com
+*/
 #include <Wire.h>
 #include <TimeLib.h>
 #include <DS1307RTC.h>
