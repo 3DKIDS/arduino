@@ -1,0 +1,67 @@
+#include <Wire.h>
+#include <TimeLib.h>
+#include <DS1307RTC.h>
+
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+void setup() {
+  lcd.init(); // initialize the lcd
+  // Print a message to the LCD.
+  lcd.backlight();
+}
+
+void loop() {
+  tmElements_t tm;
+
+  if (RTC.read(tm)) {
+
+    lcd.setCursor(0,0);
+    lcd.print(tmYearToCalendar(tm.Year));
+    lcd.setCursor(4,0);
+    lcd.print("/");
+    lcd.setCursor(5,0);
+    lcd.print(tm.Month);
+    lcd.setCursor(7,0);
+    lcd.print("/");
+    lcd.setCursor(8,0);
+    lcd.print(tm.Day);
+    lcd.setCursor(10,0);
+    lcd.print(" ");
+    lcd.setCursor(0,1);
+    lcd.print(printDigits(tm.Hour));
+    lcd.setCursor(2,1);
+    lcd.print(":");
+    lcd.setCursor(3,1);
+    lcd.print(printDigits(tm.Minute));
+    lcd.setCursor(5,1);
+    lcd.print(":");
+    lcd.setCursor(6,1);
+    lcd.print(printDigits(tm.Second));
+
+    
+  } else {
+    if (RTC.chipPresent()) {
+      lcd.setCursor(0,0);
+      lcd.print("DS1307 is stopped");
+      
+    } else {
+      lcd.setCursor(0,0);
+      lcd.print("DS1307 read error!");
+      
+    }
+    delay(9000);
+  }
+  delay(1000);
+}
+
+
+
+String printDigits(int digits){  // 시간이나 날짜가 한자리 일경우 앞에 0을 붙이는 함수
+  // utility function for digital clock display: prints preceding colon and leading 0
+  String temp = String(digits);
+  if(digits < 10)
+    temp = "0" + temp;
+  return temp;
+}
