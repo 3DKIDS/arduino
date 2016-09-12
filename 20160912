@@ -1,0 +1,87 @@
+// 모듈을 추출합니다.
+var http    = require('http');
+var mqtt   = require('mqtt');
+var client  = mqtt.connect('mqtt://172.30.1.31');
+var sensorLib = require('node-dht-sensor');
+  var MongoClient = require('mongodb').MongoClient
+ , assert = require('assert');
+
+
+var temp_value;
+var Temp;
+
+var sensor = {
+  initialize: function () {
+    return sensorLib.initialize(11, 25); // dht version: 11, using 25 pin
+  },
+  read: function () {
+    var readout = sensorLib.read();
+    console.log('Temperature: ' + readout.temperature.toFixed(2) + 'C, ' + 'humidity: ' + readout.humidity.toFixed(2) + '%');
+    temp_value =  'Temperature: ' + readout.temperature.toFixed(2) + 'C, ' + 'humidity: ' + readout.humidity.toFixed(2) + '%';
+    Temp =  readout.temperature.toFixed(2);
+   
+	//mongod DB 
+
+var url = 'mongodb://localhost:27017/ModuFarm';
+// Use connect method to connect to the Server
+MongoClient.connect(url, function(err, db) {
+  assert.equal(null, err);
+  console.log("Connected correctly to server");
+
+  // Insert a single document
+
+  db.collection('Sensor1').insertOne({Temp}, function(err, r) {
+    assert.equal(null, err);
+    assert.equal(1, r.insertedCount);
+
+  /*
+    // Insert multiple documents
+    db.collection('inserts').insertMany([{temp_value}, {a:3}], function(err, r) {
+      assert.equal(null, err);
+      assert.equal(2, r.insertedCount);
+	  });
+    */
+	   db.close();
+
+     
+    
+  });
+});
+
+
+    //mongod DB 
+    setTimeout(function () {
+      sensor.read();
+    }, 2000);
+  }
+};
+
+if (sensor.initialize()) {
+  sensor.read();
+} else {
+  console.warn('Failed to initialize sensor');
+}
+
+
+client.on('connect', function () {
+  //client.subscribe('ModuFARM/sensor/temp');
+  client.publish('ModuFARM/sensor/temp', temp_value);
+});
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(message.toString());
+  temp_value = message.toString();
+  //client.end();
+});
+
+// 웹 서버를 생성합니다.
+
+var server = http.createServer(function (request, response) {
+
+        response.writeHead(200, { 'Content-Type': 'text/html' });
+        response.end('<h1> temp_value :</h1>' + temp_value);
+
+}).listen(52273, function () {
+    console.log('Server running at port:52273');
+});
