@@ -1,0 +1,61 @@
+/*
+Modified by ModuIot 
+modulabs.co.kr
+3dkids.kr
+makerseo72@gmail.com
+
+#include <Wire.h>
+#include <TimeLib.h>
+#include <DS1307RTC.h>
+*/
+
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+// digital pin 2 has a pushbutton attached to it. Give it a name:
+int startButton = 22;
+int sensor2 = 26;
+
+int motorDir1   = 2; //방향인터럽트사용가능 pwm핀;
+int motorDir2   = 3; //방향인터럽트사용가능 pwm핀
+
+int pwmPin = 7;
+int motor_state = 0;
+
+
+void setup() {
+  Serial.begin(9600);
+  
+  lcd.init(); // initialize the lcd
+  // Print a message to the LCD.
+  lcd.backlight();
+  // make the pushbutton's pin an input:
+  pinMode(startButton, INPUT);
+  pinMode(sensor2, INPUT);
+  pinMode(motorDir1, OUTPUT);
+  pinMode(pwmPin, OUTPUT);
+
+}
+
+void loop() {
+  
+ // read the input pin:
+  if(digitalRead(startButton)==LOW && digitalRead(sensor2)==HIGH) motor_state = 0;//초기상태
+  if(digitalRead(startButton)==HIGH && digitalRead(sensor2)==HIGH) motor_state = 1;//켜진상태
+  if(digitalRead(startButton)==HIGH && digitalRead(sensor2)==LOW ) motor_state = 2; //물건이 도착한상태
+ 
+  lcd.clear(); 
+  lcd.setCursor(0,1); 
+  
+  switch(motor_state)
+  {
+    case 0 : lcd.print("stop"); analogWrite(pwmPin,0); delay(100); break;
+    case 1 : lcd.print("go down"); digitalWrite(motorDir1, HIGH); digitalWrite(motorDir2, LOW); 
+             analogWrite(pwmPin,100); break;
+    case 2 : lcd.print("break and go up "); digitalWrite(motorDir1, LOW); digitalWrite(motorDir2, HIGH); 
+             analogWrite(pwmPin,100);  break;        
+  }
+  
+  delay(100);        // delay in between reads for stability
+}
