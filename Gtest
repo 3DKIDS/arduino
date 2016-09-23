@@ -1,0 +1,40 @@
+#include <SPI.h>
+#include <TFT.h>            
+
+#define cs   10
+#define dc   9
+#define rst  8
+
+TFT screen = TFT(cs, dc, rst);
+
+int xpos = 0;
+
+void setup() {
+  screen.begin();
+  screen.background(0,255,255);
+    pinMode(A0, INPUT);
+    pinMode(A1, INPUT);
+    pinMode(A2, INPUT);
+}
+
+void loop() {
+  int val  = analogRead(A0);
+  int val2 = analogRead(A1);
+  int val3 = analogRead(A2);
+  
+  int drawHeight = map(val, 0, 1023, 0, screen.height());
+  int drawHeight2 = map(val2, 0, 1023, 0, screen.height());
+  int drawHeight3 = map(val3, 0, 1023, 0, screen.height());
+  
+  screen.stroke(255, 238, 0);
+  screen.line(xpos, screen.height()- drawHeight, xpos, screen.height());
+
+  if(xpos >=160){
+    xpos = 0;
+    screen.background(0,255,255);   
+  }
+  else{
+    xpos++;
+  }
+  delay(10);
+}
