@@ -1,0 +1,289 @@
+// Basic bluetooth test sketch. HC-0x_FC-114_01_9600
+//  Uses hardware serial to talk to the host computer and software serial for communication with the bluetooth module
+//
+//  Pins
+//  BT VCC to Arduino 5V out. 
+//  BT GND to GND
+//  Arduino D3 to BT RX through a voltage divider
+//  Arduino D2 to BT TX (no need voltage divider)
+//
+//  When a command is entered in the serial monitor on the computer 
+//  the Arduino will relay it to the bluetooth module and display the result.
+//
+// The HC-0x FC-114 modules require CR and NL
+// Modified by makerseo72@gmail.com
+// Copyright Benoit Blanchon 2014-2016
+// MIT License
+//
+// Arduino JSON library
+// https://github.com/bblanchon/ArduinoJson
+// If you like this project, please add a star!
+//modified by 3dkids.kr
+
+#include <Wire.h>
+#include <TimeLib.h>
+#include <DS1307RTC.h>
+
+#include <ArduinoJson.h>
+#include <SoftwareSerial.h>
+SoftwareSerial BTSerial(2, 3); // RX | TX
+//SoftwareSerial BTSerial(0,1); // RX | TX
+int ledPin= 13;
+
+int LFoot= 7;
+int RFoot = 8;
+int LFState = 0;         
+int RFState = 0;     
+int LWalkTemp = 0; //걷기체크
+int RWalkTemp = 0; //걷기체크
+
+String fyear;
+String fmonth;
+String fday;
+String footday,footday2;
+
+
+  StaticJsonBuffer<600> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  JsonObject& root2 = jsonBuffer.createObject();
+  JsonArray& FootFitArray = jsonBuffer.createArray();
+
+void setup() 
+{
+
+      Serial.begin(9600);
+     Serial.println("Foot-Fit V1.0 BLE is ready");
+      Serial.println("Make sure Both NL & CR are set");
+      Serial.println("");
+      
+      delay(100);
+  
+      BTSerial.begin(9600);  
+   // Serial.println("BTserial started at 9600");
+   //  Serial.println("");
+
+      pinMode(ledPin,OUTPUT);
+      pinMode(LFoot,INPUT);
+      pinMode(RFoot,INPUT);
+      
+      /*날짜시간*/
+   tmElements_t tm;
+  if (RTC.read(tm)) {
+
+    Serial.print("Ok, Time = ");
+    Serial.print(printDigits(tm.Hour));
+    Serial.write(':');
+    Serial.print(printDigits(tm.Minute));
+    Serial.write(':');
+    Serial.print(printDigits(tm.Second));
+    Serial.print(", Date (D/M/Y) = ");
+    Serial.print(printDigits(tm.Day));
+    Serial.write('/');
+    Serial.print(printDigits(tm.Month));
+    Serial.write('/');
+    Serial.print(tmYearToCalendar(tm.Year));
+    Serial.println(); 
+
+   footday = tmYearToCalendar(tm.Year) + printDigits(tm.Month) + printDigits(tm.Day);
+   //footday =  printDigits(tm.Month) + printDigits(tm.Day);
+   footday2 = tmYearToCalendar(tm.Year) + printDigits(tm.Month) + printDigits2(tm.Day);
+   //footday2 =  printDigits(tm.Month) + printDigits2(tm.Day);
+  } else {
+
+    BTSerial.print("5"); //RTC error
+    
+    if (RTC.chipPresent()) {
+     
+      Serial.println("The DS1307 is stopped.  Please run the SetTime");
+      Serial.println("example to initialize the time and begin running.");
+      Serial.println();
+     
+
+       BTSerial.print("5");
+    } else {
+      
+      Serial.println("DS1307 read error!  Please check the circuitry.");
+      Serial.println();
+    
+      BTSerial.print("5");
+    }
+
+  }
+  
+      /*날짜시간*/
+
+           
+}
+
+
+void loop()
+{
+ LFState = digitalRead(LFoot);
+ RFState = digitalRead(RFoot);
+  
+   char cmd;
+    // Read from the Bluetooth module and send to the Arduino Serial Monitor
+    if (BTSerial.available())
+    {
+        cmd = BTSerial.read();
+       // Serial.write(c);
+         Serial.print("Command= ");
+       Serial.println(cmd);
+    
+       switch (cmd) {
+            case '1':
+                //데이타 App로 전송
+              Serial.print("Data Sendig : ");
+                        
+                      //  root["fno"] = random(1,500);
+                        root["fday"] = footday; //운동당일
+                        root["fcnt1"] =0;
+                        root["fcnt2"] =0;
+                        root["fcnt3"] =0;
+                        root["fcnt4"] =0;
+                        root["fcnt5"] =0;
+                        root["fcnt6"] =300;
+                        root["fcnt7"] =50;
+                        root["fcnt8"] =0;
+                        root["fcnt9"] =100;
+                        root["fcnt10"] =0;
+                        root["fcnt11"] =77;
+                        root["fcnt12"] =0;
+                        root["fcnt13"] =324;
+                        root["fcnt14"] =221;
+                        root["fcnt15"] =0;
+                        root["fcnt16"] =55;
+                        root["fcnt17"] =0;
+                        root["fcnt18"] =57;
+                        root["fcnt19"] =0;
+                        root["fcnt20"] =0;
+                        root["fcnt21"] =0;
+                        root["fcnt22"] =0;
+                        root["fcnt23"] =0;
+                        root["fcnt24"] =11;
+                    
+                         FootFitArray.add(root);
+                         
+                         root2["fday"] = footday2; //운동전날
+                        root2["fcnt1"] =0;
+                        root2["fcnt2"] =0;
+                        root2["fcnt3"] =0;
+                        root2["fcnt4"] =0;
+                        root2["fcnt5"] =0;
+                        root2["fcnt6"] =300;
+                        root2["fcnt7"] =50;
+                        root2["fcnt8"] =77;
+                        root2["fcnt9"] =100;
+                        root2["fcnt10"] =99;
+                        root2["fcnt11"] =77;
+                        root2["fcnt12"] =0;
+                        root2["fcnt13"] =324;
+                        root2["fcnt14"] =221;
+                        root2["fcnt15"] =555;
+                        root2["fcnt16"] =55;
+                        root2["fcnt17"] =0;
+                        root2["fcnt18"] =57;
+                        root2["fcnt19"] =0;
+                        root2["fcnt20"] =0;
+                        root2["fcnt21"] =0;
+                        root2["fcnt22"] =0;
+                        root2["fcnt23"] =0;
+                        root2["fcnt24"] =99;
+                    
+                         FootFitArray.add(root2);
+                        
+                        FootFitArray.printTo(BTSerial);
+                      FootFitArray.printTo(Serial);
+                       dataDel(FootFitArray.size());//데이타지우기
+                 //데이타가 없으면 4 전송       
+                        
+                        
+                   break;
+              case '2':
+                //당일 데이타만 빼고 다 지우기 
+              Serial.print("Data Clear");
+              //   Serial.print(FootFitArray.size());
+                   dataDel(FootFitArray.size());//데이타지우기
+                   BTSerial.print("9");
+                   
+                break;
+    default: 
+      // if nothing else matches, do the default
+      // default is optional
+     
+    break;
+    }//switch end
+
+    
+       if (LFState  == HIGH) {
+             LWalkTemp = 1;
+        } 
+        if (RFState  == HIGH) {
+             RWalkTemp = 1;
+        } 
+
+        if(LWalkTemp == 1 && RWalkTemp == 1){
+           digitalWrite(ledPin,HIGH);
+         //  Serial.print("8");
+           BTSerial.print("8");
+           LWalkTemp = 0;
+           RWalkTemp = 0;
+           digitalWrite(ledPin,LOW);
+
+           delay(500);
+        }   
+        
+
+    }//BTSerial.available
+
+
+       if (LFState  == HIGH) {
+             LWalkTemp = 1;
+        } 
+        if (RFState  == HIGH) {
+             RWalkTemp = 1;
+        } 
+
+        if(LWalkTemp == 1 && RWalkTemp == 1){
+           digitalWrite(ledPin,HIGH);
+         //  Serial.print("8");
+           BTSerial.print("8");
+           LWalkTemp = 0;
+           RWalkTemp = 0;
+           digitalWrite(ledPin,LOW);
+
+           delay(500);
+        }      
+       
+    
+
+        
+}//end loop
+
+String printDigits(int digits){  // 시간이나 날짜가 한자리 일경우 앞에 0을 붙이는 함수
+  // utility function for digital clock display: prints preceding colon and leading 0
+  String temp = String(digits);
+  if(digits < 10)
+    temp = "0" + temp;
+  return temp;
+}
+
+String printDigits2(int digits){  // 시간이나 날짜가 한자리 일경우 앞에 0을 붙이는 함수
+  // utility function for digital clock display: prints preceding colon and leading 0
+  String temp = String(digits-1);
+  
+  if(digits < 10)
+    temp = "0" + temp;
+  return temp;
+}
+
+void dataDel(int s ){
+  if(s >=1 ){
+                   //     Serial.print("ArraySize : ");
+                   //     Serial.print(s);
+                          for (int i=0; i <= s; i++){
+                              FootFitArray.removeAt(i);
+                              delay(10);
+                           } //endfor
+    }//endif
+}
