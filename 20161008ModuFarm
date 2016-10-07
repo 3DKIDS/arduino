@@ -1,0 +1,92 @@
+
+// 모듈을 추출합니다.
+var time = require('time');
+// Create a new Date instance, representing the current instant in time
+var now = new time.Date();
+var http    = require('http');
+var mqtt   = require('mqtt');
+var client  = mqtt.connect('mqtt://192.168.0.235');
+var sensorLib = require('node-dht-sensor');
+var MongoClient = require('mongodb').MongoClient
+ , assert = require('assert');
+
+
+var temp_value;
+var Temp,Hum;
+var doc;
+
+
+
+var sensor = {
+  initialize: function () {
+    return sensorLib.initialize(11, 25); // dht version: 11, using 25 pin
+  },
+  read: function () {
+    var readout = sensorLib.read();
+    console.log('Temperature: ' + readout.temperature.toFixed(2) + 'C, ' + 'h                                                                        umidity: ' + readout.humidity.toFixed(2) + '%');
+
+    temp_value = 'Temperature: ' + readout.temperature.toFixed(2) + 'C, ' + '                                                                        humidity: ' + readout.humidity.toFixed(2) + '%';
+
+         doc =   {'NTime': time.time(),'Temp': readout.temperature.toFixed(2)                                                                         ,'Hum': readout.humidity.toFixed(2) };
+        // console.log(typeof doc);
+
+        //console.log( time.localtime(Math.floor(Date.now() / 1000)) );
+     console.log( time.localtime(time.time()) );
+
+
+
+                //mongod DB start
+                var url = 'mongodb://localhost:27017/ModuFarm';
+                // Use connect method to connect to the Server
+                MongoClient.connect(url, function(err, db) {
+                  assert.equal(null, err);
+                  console.log("Connected correctly to server");
+
+
+                  // Insert a single document
+                 db.collection('Sensor1').insert(doc, function(err, r) {
+                        assert.equal(null, err);
+                        assert.equal(1, r.insertedCount);
+                  });
+
+
+                  db.close();
+                });
+                //mongod DB  end
+
+    setTimeout(function () {
+      sensor.read();
+    }, 5000);
+
+  }//read function
+};
+
+if (sensor.initialize()) {
+  sensor.read();
+} else {
+  console.warn('Failed to initialize sensor');
+}
+
+/*Mqtt*/
+client.on('connect', function () {
+  //client.subscribe('ModuFarm/sensor/temp');
+  client.publish('ModuFarm/Sensor1/temp',  temp_value);
+});
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(message.toString());
+  temp_value = message.toString();
+  //client.end();
+});
+
+
+/* Web Server */
+var server = http.createServer(function (request, response) {
+
+        response.writeHead(200, { 'Content-Type': 'text/html' });
+        response.end('<h1>ModuFarm Temp& Hum :</h1>' + temp_value);
+
+}).listen(52273, function () {
+    console.log('Server running at port:52273');
+});
