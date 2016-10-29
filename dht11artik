@@ -1,0 +1,119 @@
+// DHT Temperature & Humidity Sensor
+// Unified Sensor Library Example
+// Written by Tony DiCola for Adafruit Industries
+// Released under an MIT license.
+
+// Depends on the following Arduino libraries:
+// - Adafruit Unified Sensor Library: https://github.com/adafruit/Adafruit_Sensor
+// - DHT Sensor Library: https://github.com/adafruit/DHT-sensor-library
+
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
+#include <WiFi101.h>
+#include <ArduinoJson.h>
+#define DHTPIN            5         // Pin which is connected to the DHT sensor.
+
+// Uncomment the type of sensor in use:
+#define DHTTYPE           DHT11     // DHT 11 
+//#define DHTTYPE           DHT22     // DHT 22 (AM2302)
+//#define DHTTYPE           DHT21     // DHT 21 (AM2301)
+
+// See guide for details on sensor wiring and usage:
+//   https://learn.adafruit.com/dht/overview
+
+DHT_Unified dht(DHTPIN, DHTTYPE);
+
+uint32_t delayMS;
+
+
+// Web REST API params
+char server[] = "api.artik.cloud";  
+int port = 443; //(port 443 is default for HTTPS)
+
+String AuthorizationData = "Authorization: Bearer 92546f6e82aa469f961dac38dcb4a026";
+
+float insTemp;
+char buf[200];
+#define LED 6
+int ledState = 0;
+
+WiFiSSLClient client;
+char ssid[] = "dlink-B368";      //  your network SSID (name)
+char pass[] = "dzzxn13585";
+int status = WL_IDLE_STATUS;
+
+void setup() {
+  Serial.begin(9600); 
+  // Initialize device.
+  dht.begin();
+  Serial.println("DHTxx Unified Sensor Example");
+  // Print temperature sensor details.
+  sensor_t sensor;
+  dht.temperature().getSensor(&sensor);
+ 
+  // Print humidity sensor details.
+  dht.humidity().getSensor(&sensor);
+  
+  // Set delay between sensor readings based on sensor details.
+  delayMS = sensor.min_delay / 1000;
+}
+
+void loop() {
+  // Delay between measurements.
+  delay(delayMS);
+  // Get temperature event and print its value.
+  sensors_event_t event;  
+  dht.temperature().getEvent(&event);
+  dht.humidity().getEvent(&event);
+  if (isnan(event.temperature) or isnan(event.relative_humidity) ) {
+    Serial.println("Error reading value!");
+  }else {
+
+  client.connect(server, port);
+  delay(1000);
+  if (!client.connected()) { 
+    Serial.println(" network error ");
+  } else {
+     Serial.println(" network connect ");
+    
+      int t = event.temperature;
+      int h = event.relative_humidity;
+      Serial.println("Sending data"+String(t));
+      client.println("POST /v1.1/messages HTTP/1.1");
+      client.println("Host: api.artik.cloud");
+      client.println("Accept: */*");
+      client.println("Content-Type: application/json");
+      client.println("Connection: close");
+      client.println(AuthorizationData);
+
+       // Automated POST data section
+       client.print("Content-Length: ");
+       client.println(loadBuffer(t,h)); // loads buf, returns length
+       client.println();
+       client.println(buf);
+       Serial.println("Data posted");
+       client.stop();       
+    
+      }
+  }
+ 
+  delay(5*60*1000); // delay 5 min
+}//loop
+
+
+int loadBuffer(int insTemp, int insHumid ) {  
+   StaticJsonBuffer<200> jsonBuffer; // reserve spot in memory
+
+   JsonObject& root = jsonBuffer.createObject(); // create root objects
+     root["sdid"] = "ae11d118e85542eb8461cdb1352ed56b"; // FIX 
+     root["type"] = "message";
+
+   JsonObject& dataPair = root.createNestedObject("data"); // create nested objects
+     dataPair["temp"] = insTemp;  
+     dataPair["humid"] = insHumid;
+
+   root.printTo(buf, sizeof(buf)); // JSON-print to buffer
+
+   return (root.measureLength()); // also return length
+ }
