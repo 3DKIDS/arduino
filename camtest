@@ -6,6 +6,9 @@ by makerseo72@gmail.com
 
 몇시각35분에 촬영
 node-schedule 모듈 사용
+https://www.npmjs.com/package/node-schedule
+npm install node-schedule 
+
 child_process 모듈 사용
 
 process.exit사용안함
