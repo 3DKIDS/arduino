@@ -1,0 +1,39 @@
+/*
+Modulabs.co.kr
+Moduiot
+
+by makerseo72@gmail.com
+
+몇시각35분에 촬영
+node-schedule 모듈 사용
+child_process 모듈 사용
+
+process.exit사용안함
+*/
+
+var schedule = require('node-schedule');
+var exec_photo = require('child_process').exec;
+
+var photo_path = __dirname + "/photos/" + Date.now()+'.jpg';
+var cmd_photo  = 'raspistill -o ' + photo_path;
+
+var rule = new schedule.RecurrenceRule();
+rule.minute = 35;
+ 
+var j = schedule.scheduleJob(rule, function(){
+  
+  //console.log('The answer to life, the universe, and everything!');
+
+  exec_photo(cmd_photo,function(error,stdout,stderr){
+    console.log('Photo saved : ' , photo_path);
+
+    
+    if (error) {
+    console.error(`exec error: ${error}`);
+    return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+});
+
+});
