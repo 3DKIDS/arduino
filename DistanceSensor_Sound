@@ -1,0 +1,61 @@
+//아주대교육대학원 서종원
+//오픈하드웨어 연구 모임
+//작성일 : 2017.06.27
+
+const int TriggerPin = 8; //초음파 출력 내보내는 핀
+const int EchoPin = 9; //돌아오는 초음파 받는 핀
+long Duration = 0;
+int buzzer = 11;
+
+
+void setup() {
+  pinMode(TriggerPin, OUTPUT); // Trigger is an output pin
+  pinMode(EchoPin, INPUT); // Echo is an input pin
+  Serial.begin(9600); // Serial Output
+}
+
+void loop() {
+  digitalWrite(TriggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TriggerPin, HIGH); // Trigger pin to HIGH
+  delayMicroseconds(10); // 10us high
+  digitalWrite(TriggerPin, LOW); // Trigger pin to HIGH
+
+  Duration = pulseIn(EchoPin, HIGH); // Waits for the echo pin to get high
+  // returns the Duration in microseconds
+  //echoPin 포트가 HIGH될때 까지의 시간을  microseconds 단위로 리턴해준다.
+  //https://www.arduino.cc/en/Reference/PulseIn 
+
+
+
+  long Distance_mm = Distance(Duration); //거리측정 함수 호출
+   Serial.print("Distance = "); // Output to serial
+  Serial.print(Distance_mm);
+  Serial.println(" mm");
+  
+  if(Distance_mm < 300){
+      for(int cnt = 0; cnt < 5 ; cnt++){
+      tone(buzzer, 355, 1000);
+      delay(30);
+     // noTone(buzzer);
+  }
+    
+  }
+
+ 
+  delay(300); // Wait to do next measurement
+}
+
+long Distance(long time)
+{ 
+  //거리측정 함수
+  // Calculates the Distance in mm
+  // ((time)*(Speed of sound))/ toward and backward of object) * 10
+
+  long DistanceCalc; //계산변수
+  DistanceCalc = ((time / 2.9) / 2); // Actual calculation in mm
+  // 초당 340m/s ,  또는 1cm/29micorseconds
+  
+  //DistanceCalc = time / 74 / 2; // Actual calculation in inches
+  return DistanceCalc; // return calculated value
+}
