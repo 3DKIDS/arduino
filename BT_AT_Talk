@@ -12,7 +12,7 @@
 //
 // The HC-0x FC-114 modules require CR and NL
 // HC-06 No line ending 필요함
-// BT 클래식 변경  HC-06   AT+
+// BT 클래식 변경  HC-06   Sent : AT+NAMEdevicename 
 
 #include <SoftwareSerial.h>
 SoftwareSerial BTSerial(2, 3); // RX | TX
