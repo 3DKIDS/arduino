@@ -1,0 +1,28 @@
+/*
+ * 가변저항 과 미니모터 사용
+ * by makerseo72@gmail.com
+ */
+
+
+int sensorPin = A0;    // 가변저항 연결
+int dcMotor = 9;      // DC모터 연결 ~9 PWM
+int sensorValue = 0;  // variable to store the value coming from the sensor
+
+void setup() {
+  Serial.begin(115200);
+  // declare the ledPin as an OUTPUT:
+  pinMode(dcMotor, OUTPUT);
+}
+
+void loop() {
+  // read the value from the sensor:
+  sensorValue = analogRead(sensorPin);
+  int ispeed = map(sensorValue, 0, 1023, 0, 254);
+  
+  Serial.println("Motor Speed PWM Pin : ");
+  Serial.println(ispeed);
+  analogWrite(dcMotor,ispeed);
+  
+  delay(100);
+
+}
