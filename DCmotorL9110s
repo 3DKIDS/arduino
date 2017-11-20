@@ -1,0 +1,54 @@
+
+
+/*
+L9110s 모터드라이버 모듈
+ 작성자 : 모두의IoT
+ 사용 가능 모터 전압 : 2.5V ~ 12V (전류 : 0.8A) / 
+ 2개의 DC 모터 또는 2상 4선식 스테핑 모터
+ 예제를 적절히 수정하여 테스트 !!!! 
+ 
+*/
+
+const int AIA = 3;
+const int AIB = 4;
+const int BIA = 5;
+const int BIB = 6;
+
+/*
+ * 모터 스피드 제어
+   테스트결과 130~ 부터 회전 방향이 변경 가능함.
+   100으로 셋팅하고 돌렸더니 신호를 바꾸어도 한방향으로만 회전함.
+ */
+byte speed = 130;  /* */
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(AIA,OUTPUT);
+  pinMode(AIB,OUTPUT);
+  pinMode(BIA,OUTPUT);
+  pinMode(BIB,OUTPUT);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  forward();
+  delay(2000);
+  backward();
+  delay(2000);
+}
+
+/*전진*/
+void forward(){
+  analogWrite(AIA,speed);
+  analogWrite(AIB,0);
+  analogWrite(BIA,speed);
+  analogWrite(BIB,0);
+}
+
+/*후진*/
+void backward(){
+  analogWrite(AIA,0);
+  analogWrite(AIB,speed);
+  analogWrite(BIA,0);
+  analogWrite(BIB,speed);
+}
