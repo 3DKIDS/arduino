@@ -1,0 +1,91 @@
+// This example uses an Arduino/Genuino Zero together with
+// a WiFi101 Shield or a MKR1000 to connect to shiftr.io.
+//
+// IMPORTANT: This example uses the new WiFi101 library.
+//
+// You can check on your device after a successful
+// connection here: https://shiftr.io/try.
+//
+// by Gilberto Conti
+// https://github.com/256dpi/arduino-mqtt
+//modified by jongwon SEO
+//3dkids4u@gmail.com
+
+#include <SPI.h>
+#include <WiFi101.h>
+#include <MQTTClient.h>
+
+/*wifi 패스워드 설정하기*/
+char *ssid = "iptime_lovetang";
+char *pass = "evanslover";
+
+WiFiClient net;
+MQTTClient client;
+
+unsigned long lastMillis = 0;
+
+#define PIN_LED    6 
+
+void setup() {
+  Serial.begin(9600);
+  WiFi.begin(ssid, pass);
+  client.begin("broker.shiftr.io", net);  //연결할 브러커 주소 입력부분 기본포트TCP1883
+  //client.onMessage(messageReceived);
+  
+  connect();
+  
+  pinMode(PIN_LED, OUTPUT);
+}
+
+void connect() {
+  Serial.print("checking wifi...");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(1000);
+  }
+
+  Serial.print("\nconnecting...");
+  while (!client.connect("mkr1000", "056b52b6", "fef01257553a1ae2")) {
+    Serial.print(".");
+    delay(1000);
+  }
+
+  Serial.println("\nconnected!");
+
+  client.subscribe("/mqttest/tempsensor1");
+  client.subscribe("/love");
+  // client.unsubscribe("/example");
+}
+
+void loop() {
+  client.loop();
+
+  if(!client.connected()) {
+    connect();
+  }
+
+  // publish a message roughly every second.
+  if(millis() - lastMillis > 1000) {
+    lastMillis = millis();
+    /*연결된 브러커에 정보 보내기 */
+    client.publish("/mqttest", "ajouIoT");
+    client.publish("/mqttest/tempsensor1", "34");
+  }
+}
+
+void messageReceived(String topic, String payload, char * bytes, unsigned int length) {
+  Serial.print("incoming: ");
+  Serial.print(topic);
+  Serial.print(" - ");
+  Serial.print(payload);
+  Serial.println();
+    if(topic == "/love" && payload == "on" ){
+      Serial.print("Led ON!");
+      digitalWrite(PIN_LED, HIGH);
+    }
+
+    if(topic == "/love" && payload == "off" ){
+      Serial.print("Led OFF!");
+      digitalWrite(PIN_LED, LOW);
+    }
+}
