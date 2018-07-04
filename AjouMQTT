@@ -16,15 +16,15 @@
 #include <MQTTClient.h>
 
 /*wifi 패스워드 설정하기*/
-char *ssid = "iptime_lovetang";
-char *pass = "evanslover";
+char *ssid = "와이파이아이디";
+char *pass = "와이파이패스워드";
 
 WiFiClient net;
 MQTTClient client;
 
 unsigned long lastMillis = 0;
 
-#define PIN_LED    6 
+#define PIN_LED    6 //LED핀번호
 
 void setup() {
   Serial.begin(9600);
@@ -45,7 +45,7 @@ void connect() {
   }
 
   Serial.print("\nconnecting...");
-  while (!client.connect("mkr1000", "056b52b6", "fef01257553a1ae2")) {
+  while (!client.connect("", "토근아이디", "토큰패스워드")) {
     Serial.print(".");
     delay(1000);
   }
