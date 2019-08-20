@@ -39,8 +39,8 @@ void init_shield()
 {
 	sdcard_deselect();
 	
-	const char* WIFI_SSID = "dlink-B368";
-  const char* WIFI_PASS = "dzzxn13585";
+	const char* WIFI_SSID = "공유기";
+  const char* WIFI_PASS = "패스워드";
 	g_shield.begin(WIFI_SSID, WIFI_PASS);
 
 	g_shield.print();
@@ -52,9 +52,9 @@ IoTMakers
 */
 IoTMakers g_im;
 
-const char deviceID[]   = "modufaD1477640147905";
-const char authnRqtNo[] = "1gmv2gin9";
-const char extrSysID[]  = "OPEN_TCP_001PTL001_1000002944";
+const char deviceID[]   = "xxxx";
+const char authnRqtNo[] = "xxxxx";
+const char extrSysID[]  = "xxxxx";
 
 void init_iotmakers()
 {
