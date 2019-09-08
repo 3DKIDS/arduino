@@ -1,0 +1,76 @@
+/*
+ 가변저항 값을 읽어서 RGB LED 색 바꾸기
+ by jongwon seo
+ 3dkids4u@gmail.com
+ */
+
+const int RedLedVal = A0;
+const int GreenLedVal = A1;
+const int BlueLedVal = A2;
+
+int R = 9 ;
+int G = 10 ;
+int B = 11 ;
+
+int sensorValue1 = 0;   //red
+int sensorValue2 = 0;   //green
+int sensorValue3 = 0;   //blue
+
+int outputValue1 = 0;        // red value output to the PWM (analog out)
+int outputValue2 = 0;        // green value output to the PWM (analog out)
+int outputValue3 = 0;        // blue value output to the PWM (analog out)
+
+void setup() {
+  // 한번만 실행되는 코드를 여기에 
+  Serial.begin(9600);
+  pinMode(RedLedVal, INPUT);
+  pinMode(GreenLedVal, INPUT);
+  pinMode(BlueLedVal, INPUT);
+  pinMode(R, OUTPUT);
+  pinMode(G, OUTPUT);
+  pinMode(B, OUTPUT);
+}
+
+void loop() {
+  // 반복되는 코드 부분
+  // 아날로그 값 읽어오기
+  // 빨간색
+  sensorValue1 = analogRead(RedLedVal);
+  // ~모양 디지털 핀에 출력될 PWM 매핑하기
+  outputValue1 = map(sensorValue1, 0, 1023, 0, 255);
+  // PWM 출력하기
+  analogWrite(R, outputValue1);
+
+  // 시리얼 창에 빨간색에 해당하는 저항값 출력
+  //Serial.print("sensor1 = ");
+  //Serial.print(sensorValue1);
+  Serial.print("\t Red = ");
+  Serial.println(outputValue1);
+  
+  //녹색
+  sensorValue2 = analogRead(GreenLedVal);
+  // ~모양 디지털 핀에 출력될 PWM 매핑하기
+  outputValue2 = map(sensorValue2, 0, 1023, 0, 255);
+  // PWM 출력하기
+  analogWrite(G, outputValue2);
+
+  // 시리얼 창에 빨간색에 해당하는 저항값 출력
+  //Serial.print("sensor2 = ");
+ // Serial.print(sensorValue2);
+  Serial.print("\t Green = ");
+  Serial.println(outputValue2);
+  
+  //파란색
+  sensorValue3 = analogRead(BlueLedVal);
+  // ~모양 디지털 핀에 출력될 PWM 매핑하기
+  outputValue3 = map(sensorValue3, 0, 1023, 0, 255);
+  // PWM 출력하기
+  analogWrite(B, outputValue3);
+
+  // 시리얼 창에 빨간색에 해당하는 저항값 출력
+  //Serial.print("sensor3 = ");
+  //Serial.print(sensorValue3);
+  Serial.print("\t Blue = ");
+  Serial.println(outputValue3);
+
+}
