@@ -1,8 +1,3 @@
-
-const int ledPin = 13;
-const int btnPin = 3;
-int modeChk = 0;
-int btnClick= 0;
 /*
 한 버튼으로 여러 모드 조정하기
 2019.09.20
@@ -10,34 +5,62 @@ ver 0.1
 made by 3dkids4u@gmail.com
 jongwon seo
 */
+
+//uint8_t 의미 unsigned char  0 ~ 255  1byte 범위 의미
+const uint8_t  ledPin = 13;
+const uint8_t  btnPin = 3;
+
+int modeChk = 0;
+int btnClick= 0;
+
+// Set timer
+unsigned long pre_time = 0;
+unsigned long cur_time = 0;
+
+// Set duration
+const int duration = 1000;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(ledPin, OUTPUT);
   pinMode(btnPin, INPUT);
+  digitalWrite(ledPin, LOW);
+  // Initialize previous counter time
+  pre_time = millis();
 }
 
+//int i = 1;
+
 void loop() {
-  //버튼 클릭하면 1씩 증가하기
-  btnClick = digitalRead(btnPin);
-  modeChk = modeChk + btnClick;
+
+  // Update current time in every loop
+  cur_time = millis();
   
-  //버튼 체크를 인식하여 처리하기
-       if (modeChk == 1) {
-        // 계속 불 켜저 있기
-        digitalWrite(ledPin, HIGH);
-      }else if (modeChk == 2) {
-        // 불이 깜빡이기
-        digitalWrite(ledPin, HIGH);
-        delay(500);
-        digitalWrite(ledPin, LOW);
-        delay(500);
-      }else {
-        // 1과 2가 아니면 불이 꺼지면서 modeChk = 0으로 처리
-        digitalWrite(ledPin, LOW);
-        modeChk = 0;
-      }
-      
+  //버튼 클릭식 전 후 시간차 측정하여 모드 설정해보기
+  btnClick = digitalRead(btnPin);
+  if(btnClick == HIGH ){
+    if(cur_time - pre_time > duration){
+      modeChk = modeChk + 1;
+      pre_time = cur_time;
+    }
+    //modeChk 3보다 켜지면 다시 0
+    if(modeChk  > 3){
+      modeChk = 0;
+    }
+  }
+  //modeChk기반으로  불켜기 modeChk:0 modeChk:1 modeChk:2  
+  if(modeChk == 1){
+    digitalWrite(ledPin, HIGH);
+  }else if(modeChk == 2){
+    digitalWrite(ledPin, LOW);
+    delay(500);
+    digitalWrite(ledPin, HIGH);
+    delay(500);
+  }else{
+    digitalWrite(ledPin, LOW);
+  }
+ 
   Serial.print("Modechk : ");
   Serial.println(modeChk);
  
