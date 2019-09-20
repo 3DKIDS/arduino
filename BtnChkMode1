@@ -1,0 +1,44 @@
+
+const int ledPin = 13;
+const int btnPin = 3;
+int modeChk = 0;
+int btnClick= 0;
+/*
+한 버튼으로 여러 모드 조정하기
+2019.09.20
+ver 0.1
+made by 3dkids4u@gmail.com
+jongwon seo
+*/
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  pinMode(ledPin, OUTPUT);
+  pinMode(btnPin, INPUT);
+}
+
+void loop() {
+  //버튼 클릭하면 1씩 증가하기
+  btnClick = digitalRead(btnPin);
+  modeChk = modeChk + btnClick;
+  
+  //버튼 체크를 인식하여 처리하기
+       if (modeChk == 1) {
+        // 계속 불 켜저 있기
+        digitalWrite(ledPin, HIGH);
+      }else if (modeChk == 2) {
+        // 불이 깜빡이기
+        digitalWrite(ledPin, HIGH);
+        delay(500);
+        digitalWrite(ledPin, LOW);
+        delay(500);
+      }else {
+        // 1과 2가 아니면 불이 꺼지면서 modeChk = 0으로 처리
+        digitalWrite(ledPin, LOW);
+        modeChk = 0;
+      }
+      
+  Serial.print("Modechk : ");
+  Serial.println(modeChk);
+ 
+}
