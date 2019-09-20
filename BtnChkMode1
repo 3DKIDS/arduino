@@ -30,7 +30,7 @@ void setup() {
   pre_time = millis();
 }
 
-//int i = 1;
+
 
 void loop() {
 
