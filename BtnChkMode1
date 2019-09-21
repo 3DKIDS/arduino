@@ -49,21 +49,19 @@ void loop() {
       modeChk = modeChk + 1;
       pre_time = cur_time;
     }
-    //modeChk 3보다 켜지면 다시 0
-    if(modeChk  > 3){
-      modeChk = 0;
-    }
   }
+  
   //modeChk기반으로  불켜기 modeChk:0 modeChk:1 modeChk:2  
   if(modeChk == 1){
     digitalWrite(ledPin, HIGH);
   }else if(modeChk == 2){
     digitalWrite(ledPin, LOW);
-    delay(500);
+    delay(300);
     digitalWrite(ledPin, HIGH);
-    delay(500);
+    delay(300);
   }else{
     digitalWrite(ledPin, LOW);
+    modeChk = 0;
   }
  
   Serial.print("Modechk : ");
