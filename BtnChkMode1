@@ -8,7 +8,7 @@ testBoard : Uno , Nano(ch340 old boot)
 사용중인 한글푸쉬버튼은 기본이 풀업버튼
 한글 푸쉬버튼  http://mechasolution.com/shop/goods/goods_view.php?goodsno=540716&category=
 Nano http://mechasolution.com/shop/goods/goods_view.php?goodsno=539798&category=
-
+**********중요: 반드시 ch340은 old booter 사용*********
 */
 
 //uint8_t 의미 unsigned char  0 ~ 255  1byte 범위 의미
