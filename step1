@@ -1,1 +1,16 @@
-g_im.set_strdata_handler(motor_strdata_handler); // Motor Contorl 이것으로 하겠습니다.
+void motor_strdata_handler(char *tagid, char *strval)
+{
+  // !!! USER CODE HERE
+  //Serial.print();Serial.print(F("="));Serial.println(strval);
+ // Serial.print(tagid);Serial.print(F("="));Serial.println(strval);
+  // 모터
+  Serial.print("motor:");
+  Serial.println(strval);
+  if ( strcmp(tagid, "motor")==0 && strcmp(strval, "lw")==0 ){   
+      analogWrite(MotorPin, 150); analogWrite(MotorPin2, 0); delay(1000);   
+  }else if ( strcmp(tagid, "motor")==0 && strcmp(strval, "rw")==0 ) { 
+      analogWrite(MotorPin, 0); analogWrite(MotorPin2, 150); delay(1000);  
+  }else{
+      analogWrite(MotorPin, 0); analogWrite(MotorPin2, 0);
+  }
+}
