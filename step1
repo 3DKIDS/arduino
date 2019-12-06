@@ -1,3 +1,1 @@
-/*모터 핀번호*/
-#define MotorPin         2   //팬 모터핀
-#define MotorPin2        3   //팬 모터핀
+g_im.set_strdata_handler(motor_strdata_handler); // Motor Contorl 이것으로 하겠습니다.
