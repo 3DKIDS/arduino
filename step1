@@ -1,8 +1,3 @@
-/*DHT11 start */
-  dht.begin();
-  sensor_t sensor;
-  dht.temperature().getSensor(&sensor);
-  dht.humidity().getSensor(&sensor);
- // Set delay between sensor readings based on sensor details.
- // delayMS = sensor.min_delay / 1000;
-  /*DHT11 init end */
+/*모터 핀번호*/
+#define MotorPin         2   //팬 모터핀
+#define MotorPin2        3   //팬 모터핀
