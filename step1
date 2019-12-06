@@ -1,22 +1,37 @@
-/*
-DHT22 sensor 
-*/
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-#include <DHT_U.h>
+/*온도 함수*/
+int send_temperature()
+{
+  //int tmpVal = analogRead(A0);
+  //float voltage = (tmpVal/1024.0) * 5.0;
+  //float temperature = (voltage - .5) * 100;
 
-#define DHTPIN 5     // Digital pin connected to the DHT sensor 
-// Feather HUZZAH ESP8266 note: use pins 3, 4, 5, 12, 13 or 14 --
-// Pin 15 can work but DHT must be disconnected during program upload.
+ // Get temperature event and print its value.
+  sensors_event_t event;
+  dht.temperature().getEvent(&event);
 
-// Uncomment the type of sensor in use:
-//#define DHTTYPE    DHT11     // DHT 11
-#define DHTTYPE    DHT22     // DHT 22 (AM2302)
-//#define DHTTYPE    DHT21     // DHT 21 (AM2301)
+  Serial.print(F("Temperature (c): ")); Serial.println(event.temperature);
+  if ( g_im.send_numdata("temperature", (double)event.temperature) < 0 ) {
+      Serial.println(F("fail"));  
+    return -1;
+  }
+  return 0;   
+}
 
-// See guide for details on sensor wiring and usage:
-//   https://learn.adafruit.com/dht/overview
+/*습도 함수*/
+int send_humidity()
+{
+  //int tmpVal = analogRead(A0);
+  //float voltage = (tmpVal/1024.0) * 5.0;
+  //float temperature = (voltage - .5) * 100;
 
-DHT_Unified dht(DHTPIN, DHTTYPE);
+ // Get temperature event and print its value.
+  sensors_event_t event;
+  dht.humidity().getEvent(&event);
 
-uint32_t delayMS;
+  Serial.print(F("Humidity (c): ")); Serial.println(event.relative_humidity);
+  if ( g_im.send_numdata("humidity", (double)event.relative_humidity) < 0 ) {
+      Serial.println(F("fail"));  
+    return -1;
+  }
+  return 0;   
+}
