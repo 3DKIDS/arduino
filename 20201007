@@ -1,0 +1,16 @@
+void setup() {
+  Serial.begin(9600);  // 시리얼 통신을 시작, 통신속도는 (9600)
+  pinMode(4, INPUT);   // 디지털 3번 핀을 입력모드로 설정
+
+}
+
+void loop() {
+  int a = digitalRead(4);   // 정수형 변수 a를 생성한 후 디지털 3번핀에 입력되는 신호를 입력
+  if (a == HIGH) {                                                        // a가 HIGH (1)이면 
+    Serial.println("Detection (HIGH Signal)");   // 시리얼 모니터에 Detection (HIGH Signal을 입력)
+    delay(2000);          // 2초간 대기 
+  }else {            // 그게 아니라면 (a가 HIGH가 아니라면)
+    Serial.println("Nothing (LOW Signal)");  // 시리얼 모니터에 Nothing (LOW Signal)을 입력
+    delay(2000);  // 2초간 대기
+  }
+}
